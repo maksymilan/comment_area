@@ -4,89 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Comment Section</title>
-        <style>
-            body{
-                font-family: Arial, sans-serif;
-                margin: 20px;
-                background-color: #f4f4f4;
-            }
-            .comment-box{
-                max-width: 59%;/*微调，和下面对齐*/
-                margin: 0 auto;
-                background-color: #ddd;
-                padding: 20px;
-                border-radius: 8px;
-            }
-            input,textarea{
-                width: 100%;
-                padding: 10px;
-                margin-bottom: 10px;
-                border: 1px solid #ccc;
-                border-radius: 3px;
-            }
-            button{
-                padding: 10px 20px;
-                background-color: #000;
-                color: #fff;
-                border: none;
-                cursor: pointer;
-                border-radius: 3px;
-            }
-            
-            .comments{
-                margin-top: 20px;
-                max-width: 60%;/*设置评论宽度*/
-                margin-left: auto;/*设置居中*/
-                margin-right: auto;/*设置居中*/
-                box-shadow: 0px 0px 0px rgba(0,0,0,0);/*添加阴影效果，初始无阴影*/
-                transform: translate(0,0);/*添加移动效果，初始无移动*/
-                border-radius: 6px;/*设置圆角*/
-            }
-            .comments{
-                display: flex;
-                flex-direction: column;/*一行一行评论进行排列*/
-                flex-wrap: wrap;
-                justify-content: flex-start;
-                padding: 10px;
-                background-color: #fff;
-                border: 1px solid #ccc;
-                border-left: 4px aolid black;
-                margin-bottom: 10px;
-                overflow: auto;
-                border-left: 4px solid black; /* 默认边框颜色 */
-                justify-content: space-between;
-            }
-            .comment p{
-                word-break: break-all;/*实现换行*/
-                word-wrap: break-word;
-                margin: 0;
-                width: 100%;
-                overflow-y: auto;
-            }
-
-            .comments button{
-                width: 100px;
-                margin-top: 20px;
-                background-color: #000;
-                border-radius: 3px;
-                color: #fff;
-                padding: 5px,10px;
-                cursor: pointer;
-            }
-            /*Hover*/
-            .comments:hover{
-                background-color: #f0f0f0;
-                box-shadow: 0px 4px 15px rgba(0,0,0,0.2);/*添加阴影效果*/
-                transform: translate(0,-5px);/*向上移动5px*/
-                border-left: 4px solid rgba(126, 4, 4, 0.566); /* 选中后边框进行变色 */
-            }
-            .comments button:hover{
-                background-color: #007BFF;
-            }
-            .comment-box button:hover{
-                background-color: #007BFF;
-            }
-        </style>
+        <link rel="stylesheet" href="style.css">
     </head>
 
     <body>
@@ -101,67 +19,20 @@
         </div>
 
         <div id="commentarea">
-            <!-- <div class="comments">
-                <p><strong>username</strong></p>
-                <div class="comment">
-                        <p>这是第一条评论1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111122222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222</p>
-                </div>
-                <button>删除</button>
-            </div>
             <div class="comments">
                 <p><strong>username</strong></p>
                 <div class="comment">
-                    <p>这是第一条评论111111111111111111</p>
+                    <p>这是第一条评论</p>
                 </div>
                 <button>删除</button>
-            </div> -->
+            </div>
         </div>
-<script>
+        <div class="pagebutton" id="pagebutton">
+            <button id="prevPage">上一页</button>
+            <span id="pageNumbers"></span>
+            <button id="nextPage">下一页</button>
+        </div>
 
-    document.getElementById('commentForm').addEventListener('submit',function(event){
-        event.preventDefault();//阻止表单的默认提交行为
-
-        //获取输入的用户名和评论内容
-        const username = document.getElementById('username').value;
-        const content = document.getElementById('content').value;
-
-        //构建一个新的评论元素
-        const commentDiv = document.createElement('div');//这是每一条评论框
-        commentDiv.className = 'comments';
-
-        const commentContentDiv = document.createElement('div');//这是评论内容
-        commentContentDiv.className = 'comment';
-
-        const usernameP = document.createElement('p');//这是用户名
-        usernameP.innerHTML = `<strong>${username}</strong>`;
-
-        const contentP = document.createElement('p');//这是评论文本内容
-        contentP.textContent = content;
-
-        const deleteButton = document.createElement('button');//这是删除键
-        deleteButton.textContent = '删除';
-        console.log(commentDiv)
-
-        commentContentDiv.appendChild(contentP);
-        
-        commentDiv.appendChild(usernameP);
-        commentDiv.appendChild(commentContentDiv);
-        commentDiv.appendChild(deleteButton);
-        console.log(commentDiv)
-        //将新评论添加到评论区
-        document.getElementById('commentarea').appendChild(commentDiv);
-
-        //清空表单
-        document.getElementById('commentForm').reset();
-
-        //删除评论
-        deleteButton.addEventListener('click',function(){
-            if(confirm('你确定要删除这条评论吗？')){
-                commentDiv.remove();
-            }
-        })
-    })
-
-</script>
+<script src="script.js"></script>
     </body>
 </html>

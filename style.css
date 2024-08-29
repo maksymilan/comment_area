@@ -1,0 +1,114 @@
+body{
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+.comment-box{
+    max-width: 59%;/*微调，和下面对齐*/
+    margin: 0 auto;
+    background-color: #ddd;
+    padding: 20px;
+    border-radius: 8px;
+}
+input,textarea{
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+button{
+    padding: 10px 20px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s ease; /* 添加平滑过渡效果 */
+}
+
+.comments{
+    margin-top: 20px;
+    max-width: 60%;/*设置评论宽度*/
+    margin-left: auto;/*设置居中*/
+    margin-right: auto;/*设置居中*/
+    box-shadow: 0px 0px 0px rgba(0,0,0,0);/*添加阴影效果，初始无阴影*/
+    transform: translate(0,0);/*添加移动效果，初始无移动*/
+    border-radius: 6px;/*设置圆角*/
+}
+.comments{
+    display: flex;
+    flex-direction: column;/*一行一行评论进行排列*/
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-left: 4px aolid black;
+    margin-bottom: 10px;
+    overflow: auto;
+    border-left: 4px solid black; /* 默认边框颜色 */
+    justify-content: space-between;
+}
+.comment p{
+    word-break: break-all;/*实现换行*/
+    word-wrap: break-word;
+    margin: 0;
+    width: 100%;
+    overflow-y: auto;
+}
+
+.comments button{
+    width: 100px;
+    margin-top: 20px;
+    background-color: #000;
+    border-radius: 3px;
+    color: #fff;
+    padding: 5px,10px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* 添加平滑过渡效果 */
+}
+/*Hover*/
+.comments:hover{
+    background-color: #f0f0f0;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);/*添加阴影效果*/
+    transform: translate(0,-5px);/*向上移动5px*/
+    border-left: 4px solid rgba(126, 4, 4, 0.566); /* 选中后边框进行变色 */
+}
+.comments button:hover{
+    background-color: #007BFF;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+.comment-box button:hover{
+    background-color: #007BFF;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+.pagebutton button:hover{
+    background-color: #007BFF;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+.pagebutton{
+    text-align: center;/*设置分页按钮居中*/
+    margin-top: 20px;
+    /* display: none; */
+}
+.pagebutton button{
+    margin: 0 5px;
+    padding: 5px 10px;
+    transition: all 0.3s ease; /* 添加平滑过渡效果 */
+}
+/*设置页面导航栏点击时的样式*/
+span.page-number{
+    cursor: pointer;
+    margin: 0 5px;
+    padding: 5px 10px;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+span.page-number:hover{
+    background-color: #007BFF;
+    color: white;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    transform: scale((1.1));
+    border-radius: 2px;
+}
