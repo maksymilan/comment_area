@@ -4,6 +4,8 @@ const commentPerpage = 10;
 
 //从json构建评论DOM元素
 function createCommentElement(comment){
+    // console.log(comment.data.username);
+    // console.log(comment.data.text);
     const commentDiv = document.createElement('div');//这是每一条评论框
     commentDiv.className = 'comments';
     // commentDiv.textContent = `${comment.username}: ${comment.text}`;
@@ -29,7 +31,8 @@ function createCommentElement(comment){
 
     deleteButton.addEventListener('click',function(){
         if(confirm('你确定要删除这条评论吗？')){
-            commentDiv.remove();
+            // commentDiv.remove();
+            deleteComment(comment.id)
         }
     })
     return commentDiv;
@@ -77,9 +80,11 @@ async function fetchComments(page = 1,size = 10) {
     try{
         console.log("begin")
         const response = await fetch('http://localhost:8000/comment/get');
-        console.log("fetch")
         const data = await response.json();
-        commentarea = data.map(comment => createCommentElement(comment));
+        console.log(data);
+        console.log(data.data.comments)
+        const data_comments = data.data.comments
+        commentarea = data_comments.map(comment => createCommentElement(comment));//comment是json对象
         displayComments();
     }catch(error){
         console.error('获取评论失败',error);
@@ -98,12 +103,14 @@ async function addComment(username,commentText) {
             body: JSON.stringify({username,text: commentText})
         });
         console.log("fetch完成")
-        console.log(response)
+        const resclone = response.clone()
+        console.log(resclone.json())
         if(response.ok){
             const newComment = await response.json();
-            commentarea.unshift(createCommentElement(newComment));
+            commentarea.unshift(createCommentElement(newComment.data));    
             displayComments();
         }
+        location.reload();//添加后刷新页面
     }catch(error){
         console.error('添加评论失败',error);
     }
@@ -112,14 +119,17 @@ async function addComment(username,commentText) {
 //删除评论的异步函数
 async function deleteComment(id) {
     try{
-        const response = await fetch(`http://localhost:8000/comment/${id}`,{
+        const response = await fetch(`http://localhost:8000/comment/delete/?id=${id}`,{
             method: 'DELETE',
         });
-
+        const rescol = response.clone()
+        console.log(rescol.json())
+        console.log("delete sucucess")
         if(response.ok){
             commentarea = commentarea.filter(comment => comment.id !== id);
             displayComments();
         }
+        location.reload();//删除后刷新页面
     }catch(error){
         console.error('删除评论失败',error);
     }

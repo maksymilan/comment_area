@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,9 +10,9 @@ import (
 
 // Comment 结构体表示一条评论的基本信息
 type Comment struct {
+	Name    string `json:"username"`
+	Content string `json:"text"`
 	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Content string `json:"content"`
 }
 
 // Response 结构体定义了API的统一响应格式
@@ -24,14 +25,6 @@ type Response struct {
 var comments []Comment
 var nextID int = 1
 
-// 处理预检请求的处理器
-func handlePreflight(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.WriteHeader(http.StatusNoContent) // 返回204状态码表示成功但无内容
-}
-
 // getComments 处理器函数用于获取评论列表
 func getComments(w http.ResponseWriter, r *http.Request) {
 	// 从查询参数中获取分页信息
@@ -39,7 +32,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// pageStr := r.URL.Query().Get("page")
 	// sizeStr := r.URL.Query().Get("size")
-	// // 将查询参数从字符串转换为整数
+	// 将查询参数从字符串转换为整数
 	// page, _ := strconv.Atoi(pageStr)
 	// size, _ := strconv.Atoi(sizeStr)
 
@@ -55,7 +48,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 	// } else if end > len(comments) {
 	// 	end = len(comments)
 	// }
-	//构造响应数据
+	// //构造响应数据
 	response := Response{
 		Code: 0,
 		Msg:  "success",
@@ -70,24 +63,25 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 // addComment 处理器函数用于添加新的评论
 func addComment(w http.ResponseWriter, r *http.Request) {
-	// 如果是OPTIONS请求，返回预检响应
-	if r.Method == http.MethodOptions {
-		handlePreflight(w, r)
-		return
-	}
 	w.Header().Set("Access-Control-Allow-Origin", "*") // 允许所有来源
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	// 如果是OPTIONS请求，返回预检响应
+	if r.Method == http.MethodOptions {
+		// fmt.Println(http.MethodOptions)
+		w.WriteHeader(http.StatusOK) // 返回204状态码表示成功但无内容
+		return
+	}
 	var newComment Comment
 	//从请求体中解码json数据到newComment变量
 	if err := json.NewDecoder(r.Body).Decode(&newComment); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest) //如果解码失败，返回400错误
 		return
 	}
-
 	//分配ID给新评论并递增nextID
 	newComment.ID = nextID
 	nextID++
-
+	fmt.Println(newComment)
 	//将新评论加到comments切片
 	comments = append(comments, newComment)
 
@@ -104,9 +98,17 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 // deleteComment处理函数用于删除评论
 func deleteComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*") // 允许所有来源
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+	// 如果是OPTIONS请求，返回预检响应
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	fmt.Println("Option end")
 	//从查询参数中获取评论的ID
 	idStr := r.URL.Query().Get("id")
+	fmt.Println(r.URL)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest) //转换失败，返回400
@@ -136,7 +138,7 @@ func main() {
 	//绑定路由和处理器函数
 	http.HandleFunc("/comment/get", getComments)
 	http.HandleFunc("/comment/add", addComment)
-	http.HandleFunc("/comment/delete", deleteComment)
+	http.HandleFunc("/comment/delete/", deleteComment)
 
 	//启动HTTP服务器，监听8000端口
 	log.Println("server is running on port 8000")
