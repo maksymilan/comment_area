@@ -9,5 +9,5 @@ func main() {
 	db.InitDB()
 
 	//启动服务器
-	StartServer()
+	StartServer() //使用go run .进行编译运行，只运行main文件会显示函数未定义
 }
