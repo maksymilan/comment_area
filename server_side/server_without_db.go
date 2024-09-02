@@ -3,78 +3,56 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"server_db/db"
 	"strconv"
-
-	"github.com/spf13/viper"
 )
+
+// Comment 结构体表示一条评论的基本信息
+type Comment struct {
+	Name    string `json:"username"`
+	Content string `json:"text"`
+	ID      int    `json:"id"`
+}
 
 // Response 结构体定义了API的统一响应格式
 type Response struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`  // 状态信息，通常是 'success' 或错误消息
-	Data interface{} `json:"data"` // 响应数据，可以是评论列表、
+	Data interface{} `json:"data"` // 响应数据，可以是评论列表、新添加的评论或空值
 }
 
-// 配置端口的json
-func init() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("json")
-	viper.AddConfigPath(".")
-
-	viper.ReadInConfig()
-}
-
-// StartServer启动http服务并设置路由
-func StartServer() {
-
-	var port int = viper.GetInt("port")
-	var address string = fmt.Sprintf(":%d", port)
-
-	http.HandleFunc("/comment/get", getComments)
-	http.HandleFunc("/comment/add", addComment)
-	http.HandleFunc("/comment/delete", deleteComment)
-
-	fmt.Printf("服务器启动，监听端口 %d", port)
-	log.Fatal(http.ListenAndServe(address, nil))
-}
+var comments []Comment
+var nextID int = 1
 
 // getComments 处理器函数用于获取评论列表
 func getComments(w http.ResponseWriter, r *http.Request) {
 	// 从查询参数中获取分页信息
 	w.Header().Set("Access-Control-Allow-Origin", "*") // 允许所有来源
 	w.Header().Set("Content-Type", "application/json")
+	// pageStr := r.URL.Query().Get("page")
+	// sizeStr := r.URL.Query().Get("size")
+	// 将查询参数从字符串转换为整数
+	// page, _ := strconv.Atoi(pageStr)
+	// size, _ := strconv.Atoi(sizeStr)
 
-	//从URL中查询分页信息
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
+	// if size == -1 || size > len(comments) {
+	// 	size = len(comments) // 如果size为-1，或者大于评论总数，则返回所有评论
+	// }
 
-	if page < 1 {
-		page = 1
-	}
-	if size < 1 {
-		size = 10
-	}
+	// start := (page - 1) * size
+	// end := start + size
 
-	var comments []db.Comment
-	var total int64
-
-	//计算偏移量并查询数据库
-	offset := (page - 1) * size
-	if size == -1 { //获取全部评论
-		db.DB.Find(&comments)
-	} else {
-		db.DB.Offset(offset).Limit(size).Find(&comments)
-	}
-	db.DB.Model(&db.Comment{}).Count(&total)
-
+	// if start >= len(comments) {
+	// 	start, end = 0, 0 // 如果起始索引超出范围，返回空结果
+	// } else if end > len(comments) {
+	// 	end = len(comments)
+	// }
+	// //构造响应数据
 	response := Response{
 		Code: 0,
 		Msg:  "success",
 		Data: map[string]interface{}{
-			"total":    total,
+			"total":    len(comments),
 			"comments": comments[:],
 		},
 	}
@@ -93,17 +71,18 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK) // 返回204状态码表示成功但无内容
 		return
 	}
-	var newComment db.Comment
-
+	var newComment Comment
 	//从请求体中解码json数据到newComment变量
 	if err := json.NewDecoder(r.Body).Decode(&newComment); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest) //如果解码失败，返回400错误
 		return
 	}
-
-	//添加到数据库
-	db.DB.Create(&newComment)
+	//分配ID给新评论并递增nextID
+	newComment.ID = nextID
+	nextID++
 	fmt.Println(newComment)
+	//将新评论加到comments切片
+	comments = append(comments, newComment)
 
 	//构造响应数据
 	response := Response{
@@ -134,9 +113,18 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest) //转换失败，返回400
 		return
 	}
-	//在数据库中删除指定id的评论
-	db.DB.Delete(&db.Comment{}, id)
+	//查找要删除的评论在切片中的索引
+	index := -1
+	for i, comment := range comments {
+		if comment.ID == id {
+			index = i
+			break
+		}
+	}
 
+	if index != -1 {
+		comments = append(comments[:index], comments[index+1:]...)
+	}
 	//构造响应数据
 	response := Response{
 		Code: 0,

@@ -1,0 +1,146 @@
+/* “评论区”标题 */
+h1 {
+    margin-left: 24.5%;
+}
+
+/* “用户名”、“评论”、用户名 */
+h3 {
+    text-align: left;
+}
+
+/* 输入框 */
+input {
+    width: 95%;
+    height: 2em;
+    margin-right: 2%;
+    margin-bottom: 30px;
+}
+
+a, a:active, a:visited {
+    color: #817f7f;
+    text-decoration: none;
+}
+
+/* 整个评论区 */
+.commentSystem {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+/* 输入区域 */
+.inputArea {
+    width: 50%;
+    position: relative;
+    text-align: right;
+    border-radius: 10px; 
+    border-color: black;
+    border-style: solid;
+    padding-left: 10px;
+    padding-right: 1px;
+    padding-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: rgb(220, 239, 245);
+}
+
+/* 评论内容 */
+#commentText {
+    width: 95.3%;
+    font-size: 1.3em;
+    margin-right: 2%;
+    margin-bottom: 20px;
+    
+}
+
+.button {
+    font-size: 1.1em;
+    margin-right: 2%;
+    background-color: rgb(220, 225, 245);
+    border-radius: 5px;
+    right: 0px;
+}
+
+.button:hover {
+    background-color: rgb(160, 171, 200);
+}
+
+/* 提交按钮 */
+.submit {
+    width: 3em;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+/* 评论总数 */
+#commentSum {
+    width: 51%;
+   
+}
+
+/* 评论展示页 */
+#commentsList {
+    width: 52%;
+}
+
+/* 评论块 */
+.comment {
+    text-align: left;
+    position: relative;
+    border-left-color: #bebebe;
+    border-left-style: solid;
+    border-left-width: 5px;
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+/* 评论块悬浮效果 */
+.comment:hover {
+    border-left-color: black;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow:  10px 10px 60px #bebebe,
+                 -10px -10px 60px #ffffff;
+}
+
+/* 删除按钮 */
+.deleteMe {
+    position: absolute;
+    bottom: 10px;
+}
+
+/* 分页器 */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 翻页按钮 */
+.pageButton {
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color:rgba(220, 239, 245, 0.7);
+    border-radius: 5px;
+    font-size: 1.01em;
+}
+
+/* 单页评论数 */
+#pageSizeSet {
+    display: inline-flex;
+    align-items: right;
+    justify-content: center;
+    margin-left: 60%;
+    right: 0px;
+    margin-right: 2%;
+}
+
+/* 输入框 */
+#pageSize {
+    display: inline-block;
+    margin-top: 1%;
+    width: 15%;
+    height: 17%;
+}

@@ -1,0 +1,7 @@
+{
+    "apiBaseUrl": "https://localhost:8000",
+    "endpoints": {
+      "getComments": "/comment/get"
+    }
+  }
+  

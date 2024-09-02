@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="NoughtQ">
+        <title>Comments System - by NoughtQ</title>
+        <link rel="icon" href="favicon.png" type="image/png">
+        <link rel="stylesheet" href="custom.css">
+        
+    </head>
+    <body>
+        <h1>评论区<a style="font-size: .5em;" href="https://github.com/noughtq" target="_blank"> - by NoughtQ</a></h1>
+        <div class="commentSystem">
+
+            <!-- 添加评论 -->
+            <form class="inputArea" id="submit">
+                <h3>用户名:</h3>
+                <input type="text" id="username" name="name" placeholder="你的名字">
+                <h3>评论:</h3>
+                <textarea rows="5" wrap="hard" id="commentText" name="content" placeholder="大胆表达你的感受或想法"></textarea>
+                <br>   
+                <input type="submit" class="button submit" value="提交">
+            </form>
+
+            <!-- 评论总数 -->
+            <p id="commentSum"> <!-- <strong>共 3 条评论</strong> --> </p>
+            
+            <div id="commentsList">
+                <!-- 评论列表 -->
+            </div>
+
+            <!-- 页面切换&页数显示 -->
+            <div class="pagination" id="pagination">
+                <button class="pageButton" id="previous">上一页</button>
+                <p class="pageNum">第 1 页</p>
+                <button class="pageButton" id="next">下一页</button>
+            </div>
+
+            <!-- 控制单页显示评论数 -->
+            <div id="pageSizeSet">
+               单页显示评论数（默认为5）：<input type="number" id="pageSize" placeholder="5">
+            </div>
+        </div>
+        <!-- 注意导入 JS 脚本的顺序——要放在最后！ -->
+        <script src="main.js"></script>
+    </body>
+</html>

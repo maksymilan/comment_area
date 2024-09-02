@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"server_db/db"
-	"strconv"
 
 	"github.com/spf13/viper"
 )
@@ -20,6 +19,7 @@ type Response struct {
 
 // 配置端口的json
 func init() {
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
@@ -29,6 +29,9 @@ func init() {
 
 // StartServer启动http服务并设置路由
 func StartServer() {
+
+	fs := http.FileServer(http.Dir("../qzy_front"))
+	http.Handle("/", fs)
 
 	var port int = viper.GetInt("port")
 	var address string = fmt.Sprintf(":%d", port)
@@ -48,26 +51,26 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	//从URL中查询分页信息
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
+	// page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	// size, _ := strconv.Atoi(r.URL.Query().Get("size"))
 
-	if page < 1 {
-		page = 1
-	}
-	if size < 1 {
-		size = 10
-	}
-
+	// if page < 1 {
+	// 	page = 1
+	// }
+	// if size < 1 {
+	// 	size = 10
+	// }
 	var comments []db.Comment
 	var total int64
 
 	//计算偏移量并查询数据库
-	offset := (page - 1) * size
-	if size == -1 { //获取全部评论
-		db.DB.Find(&comments)
-	} else {
-		db.DB.Offset(offset).Limit(size).Find(&comments)
-	}
+	// offset := (page - 1) * size
+	// if size == -1 { //获取全部评论
+	// 	db.DB.Find(&comments)
+	// } else {
+	// 	db.DB.Offset(offset).Limit(size).Find(&comments)
+	// }
+	db.DB.Find(&comments)
 	db.DB.Model(&db.Comment{}).Count(&total)
 
 	response := Response{
@@ -84,21 +87,27 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 // addComment 处理器函数用于添加新的评论
 func addComment(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*") // 允许所有来源
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	// 如果是OPTIONS请求，返回预检响应
-	if r.Method == http.MethodOptions {
-		// fmt.Println(http.MethodOptions)
-		w.WriteHeader(http.StatusOK) // 返回204状态码表示成功但无内容
-		return
-	}
-	var newComment db.Comment
+	// var newComment db.Comment
 
-	//从请求体中解码json数据到newComment变量
-	if err := json.NewDecoder(r.Body).Decode(&newComment); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest) //如果解码失败，返回400错误
-		return
+	// //从请求体中解码json数据到newComment变量
+	// if err := json.NewDecoder(r.Body).Decode(&newComment); err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest) //如果解码失败，返回400错误
+	// 	return
+	// }
+	fmt.Println("function start")
+	r.ParseMultipartForm(10 << 20)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+
+	fmt.Println("name is", r.FormValue("name"))
+	name := r.FormValue("name")
+	content := r.FormValue("content")
+
+	newComment := db.Comment{
+		Name:    name,
+		Content: content,
 	}
 
 	//添加到数据库
@@ -117,23 +126,17 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 
 // deleteComment处理函数用于删除评论
 func deleteComment(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*") // 允许所有来源
-	w.Header().Set("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
-	// 如果是OPTIONS请求，返回预检响应
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-	fmt.Println("Option end")
-	//从查询参数中获取评论的ID
-	idStr := r.URL.Query().Get("id")
-	fmt.Println(r.URL)
-	id, err := strconv.Atoi(idStr)
+	// var id int
+	// if err := json.NewDecoder(r.Body).Decode(&id); err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest) //转换失败，返回400
+	// 	return
+	// }
+	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest) //转换失败，返回400
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest) //表单解析失败
 	}
+	id := r.FormValue("id")
+	// fmt.Println(id)
 	//在数据库中删除指定id的评论
 	db.DB.Delete(&db.Comment{}, id)
 

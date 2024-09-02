@@ -1,24 +1,39 @@
 let commentarea = []
 let currentPage = 1;
+let totalcomments = 0;
 const commentPerpage = 10;
+const baseurl = 'http://localhost:8000/comment/'
+//fetchcomment得到的response的结构
+// object{
+//     code:0
+//     data:{
+//         comments:{//comments是多个comment组成的数组，一个comment的内部数据如下
+//             Name:
+//             Content:
+//             ID:
+//         }
+//         total:
+//     }
+//     msg:
+// }
 
-//从json构建评论DOM元素
+
+//从json构建评论DOM元素，接受每一个comment的json结构，将其中的数据读取到dom中
 function createCommentElement(comment){
-    // console.log(comment.data.username);
-    // console.log(comment.data.text);
     const commentDiv = document.createElement('div');//这是每一条评论框
     commentDiv.className = 'comments';
     // commentDiv.textContent = `${comment.username}: ${comment.text}`;
-    commentDiv.id = comment.id;
+    commentDiv.id = comment.ID;
     //构建一个新的评论元素
     const commentContentDiv = document.createElement('div');//这是评论内容
     commentContentDiv.className = 'comment';
 
+    // console.log(comment.Name)
     const usernameP = document.createElement('p');//这是用户名
-    usernameP.innerHTML = `<strong>${comment.username}</strong>`;
+    usernameP.innerHTML = `<strong>${comment.Name}</strong>`;
 
     const contentP = document.createElement('p');//这是评论文本内容
-    contentP.textContent = comment.text;
+    contentP.textContent = comment.Content;
 
     const deleteButton = document.createElement('button');//这是删除键
     deleteButton.textContent = '删除';
@@ -32,29 +47,29 @@ function createCommentElement(comment){
     deleteButton.addEventListener('click',function(){
         if(confirm('你确定要删除这条评论吗？')){
             // commentDiv.remove();
-            deleteComment(comment.id)
+            deleteComment(comment.ID)
         }
     })
     return commentDiv;
 }
 
-//分页显示评论
+//显示评论，将读取到的评论（储存在commentarea切片中）添加到dom中
 function displayComments(){
-    const start = (currentPage - 1)*commentPerpage;
-    const end = start + commentPerpage;
-    const inpageComments = commentarea.slice(start,end);
+    // const start = (currentPage - 1)*commentPerpage;
+    // const end = start + commentPerpage;
+    // const inpageComments = commentarea.slice(start,end);
 
     const commentsContaner = document.getElementById('commentarea');
     commentsContaner.innerHTML = '';
-    inpageComments.forEach(commentDiv => {
+    commentarea.forEach(commentDiv => {
         commentsContaner.appendChild(commentDiv);
     });//将切片中选中的评论添加到评论区中
 
-    const totalPages = Math.ceil(commentarea.length/commentPerpage);
+    const totalPages = Math.ceil(totalcomments/commentPerpage);
     updatePageNumbers(totalPages);
 }
 
-//更新页码
+// 更新页码，在底部实现数字导航栏的效果
 function updatePageNumbers(totalPages){
     const pageNumbersContainer = document.getElementById('pageNumbers');
     pageNumbersContainer.innerHTML = '';
@@ -69,7 +84,7 @@ function updatePageNumbers(totalPages){
         }
         pageNumberSpan.addEventListener('click',function(){
             currentPage = i;
-            displayComments();
+            fetchComments(currentPage)
         });
         pageNumbersContainer.appendChild(pageNumberSpan);
     }
@@ -78,12 +93,12 @@ function updatePageNumbers(totalPages){
 //获取评论的异步函数
 async function fetchComments(page = 1,size = 10) {
     try{
-        console.log("begin")
-        const response = await fetch('http://localhost:8000/comment/get');
+        const response = await fetch(`${baseurl}get?page=${page}&size=${size}`);
         const data = await response.json();
         console.log(data);
         console.log(data.data.comments)
         const data_comments = data.data.comments
+        totalcomments = data.data.total
         commentarea = data_comments.map(comment => createCommentElement(comment));//comment是json对象
         displayComments();
     }catch(error){
@@ -92,22 +107,23 @@ async function fetchComments(page = 1,size = 10) {
 }
 
 //添加评论的异步函数
-async function addComment(username,commentText) {
+async function addComment(Name,Content) {
     try{
         console.log("fetch开始")
-        const response = await fetch('http://localhost:8000/comment/add',{
+        const response = await fetch(`${baseurl}add`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({username,text: commentText})
+            body: JSON.stringify({Name,Content})
         });
-        console.log("fetch完成")
-        const resclone = response.clone()
-        console.log(resclone.json())
+        // console.log("fetch完成")
+        // const resclone = response.clone()
+        // console.log(resclone.json())
         if(response.ok){
             const newComment = await response.json();
-            commentarea.unshift(createCommentElement(newComment.data));    
+            commentarea.unshift(createCommentElement(newComment.data));
+            console.log(newComment.data)    
             displayComments();
         }
         location.reload();//添加后刷新页面
@@ -119,7 +135,7 @@ async function addComment(username,commentText) {
 //删除评论的异步函数
 async function deleteComment(id) {
     try{
-        const response = await fetch(`http://localhost:8000/comment/delete/?id=${id}`,{
+        const response = await fetch(`${baseurl}delete?id=${id}`,{
             method: 'DELETE',
         });
         const rescol = response.clone()
@@ -137,19 +153,19 @@ async function deleteComment(id) {
 
 window.onload = function(){
     fetchComments();
-    // setInterval(fetchComments,6000);//6s更新一次评论区
+    setInterval(fetchComments,60000);//6s更新一次评论区
     document.getElementById('prevPage').addEventListener('click',function(){
         if(currentPage > 1){
             currentPage--;
-            displayComments();
+            fetchComments(currentPage)
         }
     });//返回上一页
 
     document.getElementById('nextPage').addEventListener('click',function(){
-        const totalPages = Math.ceil(commentarea.length/commentPerpage);
+        const totalPages = Math.ceil(totalcomments/commentPerpage);
         if(currentPage < totalPages){
             currentPage ++;
-            displayComments();
+            fetchComments(currentPage)
         }
     });//进入下一页
 
@@ -159,9 +175,7 @@ window.onload = function(){
         const content = document.getElementById('content').value;
         //不能为空
         if(username&&content){
-            console.log("开始提交")
             addComment(username,content);
-            console.log("提交完成")
             //清空输入
             document.getElementById('username').value = '';
             document.getElementById('content').value = '';
