@@ -7,23 +7,38 @@ import (
 	"net/http"
 	"server_db/db"
 	"strconv"
+
+	"github.com/spf13/viper"
 )
 
 // Response 结构体定义了API的统一响应格式
 type Response struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`  // 状态信息，通常是 'success' 或错误消息
-	Data interface{} `json:"data"` // 响应数据，可以是评论列表、新添加的评论或空值
+	Data interface{} `json:"data"` // 响应数据，可以是评论列表、
+}
+
+// 配置端口的json
+func init() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("json")
+	viper.AddConfigPath(".")
+
+	viper.ReadInConfig()
 }
 
 // StartServer启动http服务并设置路由
 func StartServer() {
+
+	var port int = viper.GetInt("port")
+	var address string = fmt.Sprintf(":%d", port)
+
 	http.HandleFunc("/comment/get/", getComments)
 	http.HandleFunc("/comment/add", addComment)
 	http.HandleFunc("/comment/delete/", deleteComment)
 
-	fmt.Println("服务器启动，监听端口 8000")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	fmt.Printf("服务器启动，监听端口 %d", port)
+	log.Fatal(http.ListenAndServe(address, nil))
 }
 
 // getComments 处理器函数用于获取评论列表
